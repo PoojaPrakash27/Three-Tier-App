@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_BACKEND_URL: "http://localhost:3500/api/tasks"
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - three-tier-app
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3500:3500"
+    depends_on:
+      - db
+    restart: always
+    environment:
+      USE_DB_AUTH: "true"
+      MONGO_USERNAME: "root"
+      MONGO_PASSWORD: "root"
+      MONGO_CONN_STR: "mongodb://root:root@db:27017/my_db?authSource=admin"
+    networks:
+      - three-tier-app
+
+  db:
+    image: mongo:7-jammy
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD: "root"
+      MONGO_INITDB_DATABASE: "my_db"
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - three-tier-app
+
+networks:
+  three-tier-app:
+    driver: bridge

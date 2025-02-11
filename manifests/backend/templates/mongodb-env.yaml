@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "backend.fullname" . }}
+data:
+  USERNAME: root
+  PASSWORD: root
+  CONN_STR: "mongodb://root:root@mongodb-app:27017/my_db?authSource=admin"
+  USE_DB_AUTH: "true"
